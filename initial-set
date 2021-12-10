@@ -1,0 +1,62 @@
+◆ansible base set
+
+
+        
+        
+◆virt-manager;
+sudo su -
+systemctl enable serial-getty@ttyS0.service
+systemctl start serial-getty@ttyS0.service
+
+virsh console ubuntu20.04
+
+sudo su -
+passwd root
+
+nano /etc/netplan/01-network-manager-all.yaml 
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp1s0:
+      dhcp4: false
+      dhcp6: false
+      addresses: [7.1.10.1/24]
+      gateway4: 7.1.1.2
+      nameservers:
+        addresses: [8.8.8.8]
+
+apt update
+apt -y install ssh
+sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/g' /etc/ssh/sshd_config
+systemctl restart ssh
+apt -y install ansible 
+apt -y install git
+git clone https://github.com/peaky-peaky/servertest
+cd servertest
+git config --global user.email azure84ro@gmail.com
+git config --global user.name peaky-peaky
+apt -y install sshpass
+ssh root@7.1.10.1
+ansible -i inventory/hosts all -m ping
+source keystonerc
+sed -i 's/# set linenumbers/set linenumbers/g' /etc/nanorc
+sed -i  s/[a-z]*//g  ~/servertest/roles/keystone/tasks/prolist | sed -i  s/[0-9]*//g  ~/servertest/roles/keystone/tasks/prolist | sed -i  s/[A-Z]*//g  ~/servertest/roles/keystone/tasks/prolist | sed -i  s/-*//g  ~/servertest/roles/keystone/tasks/prolist | sed -i  s/+*//g  ~/servertest/roles/keystone/tasks/prolist | sed -i  's/|*//g'  ~/servertest/roles/keystone/tasks/prolist
+sed -i  s/[a-z]*//g  ~/servertest/roles/keystone/tasks/userlist | sed -i  s/[0-9]*//g  ~/servertest/roles/keystone/tasks/userlist | sed -i  s/[A-Z]*//g  ~/servertest/roles/keystone/tasks/userlist | sed -i  s/-*//g  ~/servertest/roles/keystone/tasks/userlist | sed -i  s/+*//g  ~/servertest/roles/keystone/tasks/userlist | sed -i  's/|*//g'  ~/servertest/roles/keystone/tasks/userlist
+sed -i  s/[a-z]*//g  ~/servertest/roles/keystone/tasks/sqlresult | sed -i  s/[0-9]*//g  ~/servertest/roles/keystone/tasks/sqlresult | sed -i  s/[A-Z]*//g  ~/servertest/roles/keystone/tasks/sqlresult | sed -i  s/-*//g  ~/servertest/roles/keystone/tasks/sqlresult | sed -i  s/+*//g  ~/servertest/roles/keystone/tasks/sqlresult | sed -i 's/|*//g'  ~/servertest/roles/keystone/tasks/sqlresult
+sed -i  s/[a-z]*//g  ~/servertest/roles/novauser/tasks/nova-result | sed -i  s/[0-9]*//g  ~/servertest/roles/novauser/tasks/nova-result | sed -i  s/[A-Z]*//g  ~/servertest/roles/novauser/tasks/nova-result | sed -i  s/-*//g  ~/servertest/roles/novauser/tasks/nova-result | sed -i  s/+*//g  ~/servertest/roles/novauser/tasks/nova-result | sed -i 's/|*//g'  ~/servertest/roles/novauser/tasks/nova-result
+
+nano /etc/ansible/ansible.cfg
+interpreter_python=/usr/bin/python3
+roles_path = /root/servertest/roles
+
+■if needed;
+for i in nova nova_cell0 placement nova_api; do mysql -u root -h localhost -e "drop database ${i};"; do
+for i in nova nova_cell0 placement nova_api; do mysql -u root -h localhost -e "drop user ${i}@localhost;"; done
+for i in nova nova_cell0 placement nova_api; do mysql -u root -h localhost -e "drop user ${i}@'%';"; done
+for i in neutron_ml2 ; do mysql -u root -h localhost -e "drop database ${i};"; done
+for i in neutron_ml2 ; do mysql -u root -h localhost -e "drop user ${i}@localhost;"; done
+for i in neutron_ml2 ; do mysql -u root -h localhost -e "drop user ${i}@'%';"; done
+
+
+

@@ -1,0 +1,96 @@
+---
+- name: create keystone user
+  script: /root/servertest/roles/mariadb/tasks/sql.sh
+
+
+- name: install keystone component
+  apt:
+   name:
+     - keystone
+     - python3-openstackclient
+     - apache2
+     - libapache2-mod-wsgi-py3
+     - python3-oauth2client
+
+
+- name: cpmpile language apache2
+  replace: dest=/etc/apache2/envvars
+           regexp="{{item.regexp}}"
+           replace="{{item.replace}}"
+  with_items:
+    - { regexp: '^export LANG=C', replace: 'export LANG="en_US.UTF-8"' }
+
+
+- name: /tmp/stat_test.txtのstatusを取得
+  stat: path=/etc/keystone/keystone.conf
+  register: file_stat
+
+
+- name: keystone config backup
+  command: cp /etc/keystone/keystone.conf /etc/keystone/keystone.conf.org
+  when: file_stat.stat.exists
+
+
+
+- name: compile keystone.conf
+  command: cp ~/servertest/roles/keystone/tasks/keystone.conf /etc/keystone/
+
+
+- name: check serverworld
+  command: cat /etc/apache2/apache2.conf
+  register: command1_result
+
+
+- name: Perform a Keystone DB sync migrate
+  command: su -s /bin/bash keystone -c "keystone-manage db_sync"
+  when: "'dlp.srv.world' not in command1_result.stdout"
+
+- name: initialaize key
+  command: keystone-manage fernet_setup --keystone-user keystone --keystone-group keystone 
+  when: "'dlp.srv.world' not in command1_result.stdout"
+
+- name: initialaize key2
+  command: keystone-manage credential_setup --keystone-user keystone --keystone-group keystone
+  when: "'dlp.srv.world' not in command1_result.stdout"
+
+
+- name: Bootstrap keystone admin and endpoint
+  command: |
+    keystone-manage bootstrap --bootstrap-password adminpassword \
+    --bootstrap-admin-url http://7.1.10.1:5000/v3/ \
+    --bootstrap-internal-url http://7.1.10.1:5000/v3/ \
+    --bootstrap-public-url http://7.1.10.1:5000/v3/ \
+    --bootstrap-region-id RegionOne
+  when: "'dlp.srv.world' not in command1_result.stdout"
+
+
+- name: apache config
+  lineinfile: dest=/etc/apache2/apache2.conf
+              insertafter='^#ServerRoot "/etc/apache2"'
+              line="{{item.line}}"
+  with_items:
+    - { line: 'ServerName dlp.srv.world' }
+
+
+- name: restart apache
+  service: name=apache2 state=restarted
+
+
+#- name: compile keystone var export file
+ # copy:
+  #  src: "/home/ansible/servertest/roles/keystone/tasks/keystonerc"
+   # dest: "~/keystonerc"
+
+
+#- name: change access auth
+#  file:
+#    path: ~/keystonerc
+#    mode: 600
+
+
+#- name: export environmental variables
+#  shell: bash -lc "source ~/keystonerc"
+
+
+#- name: export environmental variables2
+#  command: echo $(<~/keystonerc) >> ~/.bash_profile

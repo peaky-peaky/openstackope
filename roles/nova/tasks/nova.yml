@@ -1,0 +1,52 @@
+---
+- name: stop nova-conductor
+  service: name=nova-conductor state=stopped
+
+
+- name: stop nova-scheduler
+  service: name=nova-scheduler state=stopped
+
+
+- name: stop nova-novncproxy
+  service: name=nova-novncproxy state=stopped
+
+
+- name: stop nova-api
+  service: name=nova-api state=stopped
+
+
+- name: install nova-compute component
+  apt:
+    name:
+      - nova-compute
+      - nova-compute-kvm
+
+
+- name: restart nova-compute
+  service: name=nova-compute state=restarted
+
+
+- name: check nova-compute
+  command: "cat /root/servertest/roles/novauser/tasks/nova-result"
+  register: check_nova_compute
+
+
+- name: node discover
+  command: su -s /bin/bash nova -c "nova-manage cell_v2 discover_hosts"
+  when: "'nova-compute' not in check_nova_compute.stdout"
+
+
+- name: restart nova-api
+  service: name=nova-api state=restarted
+
+
+- name: restart nova-conductor2
+  service: name=nova-conductor state=restarted
+
+
+- name: restart nova-scheduler2
+  service: name=nova-scheduler state=restarted
+
+
+- name: restart nova-novncproxy2
+  service: name=nova-novncproxy state=restarted

@@ -1,0 +1,6 @@
+[testvm]
+7.1.10.1
+
+[testvm:vars]
+ansible_user=root
+ansible_password=8
