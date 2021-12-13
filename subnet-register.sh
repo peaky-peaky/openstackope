@@ -1,9 +1,14 @@
 #!/bin/bash
 
-projectIDver=$(echo $projectID)
-
-
-openstack subnet create subnet1 --network sharednet1 \
---project $projectIDver --subnet-range 7.1.10.0/24 \
---allocation-pool start=10.0.0.200,end=10.0.0.254 \
---gateway 10.0.0.1 --dns-nameserver 10.0.0.10
+for subnet in 1 2
+do
+cat ~/subnet-result | grep subnet${subnet}
+if [ $? -ne 0 ]; then
+ sh ~/openstackope/subnet${subnet}.sh
+ if [ $? -eq 0 ]; then
+ echo "subnet"${subnet} created
+ else
+ echo "subnet"${subnet} error..
+ fi
+fi
+done

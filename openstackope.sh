@@ -144,7 +144,7 @@ else
  exit 1
 fi
 
-openstack network list > /root/network-result
+openstack network list > ~/network-result
 cat ~/network-result | grep sharednet1
 
 if [ $? -ne 0 ]; then
@@ -152,18 +152,14 @@ if [ $? -ne 0 ]; then
 fi
 
 
-openstack subnet list > /root/subnet-result
-cat ~/subnet-result | grep subnet1
+openstack subnet list > ~/subnet-result
+sh ~/openstackope/subnet-register.sh
+
+
+cat ~/openstackope/roles/keystone/tasks/prolist | grep hiroshima
 
 if [ $? -ne 0 ]; then
- sh ~/openstackope/subnet-register.sh
-fi
-
-
-cat ~/servertest/roles/keystone/tasks/prolist | grep hiroshima
-
-if [ $? -ne 0 ]; then
- sh ~/servertest/hiroshima.sh
+ sh ~/openstackope/hiroshima.sh
 fi
 
 
