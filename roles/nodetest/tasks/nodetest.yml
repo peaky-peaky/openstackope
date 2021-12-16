@@ -1,0 +1,12 @@
+---
+- name: cp node1
+  copy:
+      src: ~/openstackope/roles/nodetest/tasks/node1
+      dest: ~/
+  when: inventory_hostname == '10.0.1.1'
+
+- name: cp node2
+  copy:
+      src: ~/openstackope/roles/nodetest/tasks/node2
+      dest: ~/
+  when: inventory_hostname == '10.0.2.1'

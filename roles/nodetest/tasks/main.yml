@@ -1,0 +1,5 @@
+---
+- name: nodetest
+  block:
+  - name: nodetest set
+    import_tasks: nodetest.yml

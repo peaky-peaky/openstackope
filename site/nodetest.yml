@@ -1,0 +1,6 @@
+---
+- name: nodetest
+  become: yes
+  hosts: all
+  roles:
+    - nodetest

@@ -1,0 +1,6 @@
+---
+- name: config openstackHV
+  become: yes
+  hosts: all
+  roles:
+    - openstackHV
