@@ -1,0 +1,31 @@
+---
+- name: change hostname file
+  replace: dest=/etc/hosts
+           regexp="{{item.regexp}}"
+           replace="{{item.replace}}"
+  with_items:
+    - { regexp: '^127.0.1.1', replace: '10.0.1.1' }
+    - { regexp: 'ubuntu', replace: 'node1' } 
+  when: inventory_hostname == '10.0.1.1'
+
+
+- name: set hostname
+  hostname: 
+    name: node1
+  when: inventory_hostname == '10.0.1.1'
+
+
+- name: change hostname file
+  replace: dest=/etc/hosts
+           regexp="{{item.regexp}}"
+           replace="{{item.replace}}"
+  with_items:
+    - { regexp: '^127.0.1.1', replace: '10.0.2.1' }
+    - { regexp: 'ubuntu', replace: 'node2' }
+  when: inventory_hostname == '10.0.2.1'
+
+
+- name: set hostname
+  hostname: 
+    name: node2
+  when: inventory_hostname == '10.0.2.1'

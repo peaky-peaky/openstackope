@@ -17,9 +17,32 @@
   when: nova_conf_stat.stat.exists
 
 
-- name: copy nova config
-  command: cp ~/openstackope/roles/novauser/tasks/nova.conf /etc/nova/
+- name: copy files
+  copy:
+    src: ~/openstackope/roles/openstackHV/tasks/nova.conf 
+    dest: /tmp/copy_here/
 
+
+- name: compile nova.conf for main
+  replace: dest=/etc/hosts
+           regexp="{{item.regexp}}"
+           replace="{{item.replace}}"
+  with_items:
+    - { regexp: '^my_ip = 7.1.10.1', replace: 'my_ip = 10.0.1.1' }
+    - { regexp: '^server_proxyclient_address = 7.1.10.1', replace: 'server_proxyclient_address = 10.0.1.1' }
+    - { regexp: '^http://7.1.10.1:6080/vnc_auto.html', replace: 'http://10.0.1.1:6080/vnc_auto.html ' }
+  when: inventory_hostname == '10.0.1.1'
+
+
+ name: compile nova.conf for backup
+  replace: dest=/etc/hosts
+           regexp="{{item.regexp}}"
+           replace="{{item.replace}}"
+  with_items:
+    - { regexp: '^my_ip = 7.1.10.1', replace: 'my_ip = 10.0.2.1' }
+    - { regexp: '^server_proxyclient_address = 7.1.10.1', replace: 'server_proxyclient_address = 10.0.2.1' }
+    - { regexp: '^http://7.1.10.1:6080/vnc_auto.html', replace: 'http://10.0.2.1:6080/vnc_auto.html ' }
+  when: inventory_hostname == '10.0.2.1'
 
 - name: change access auth
   file:
