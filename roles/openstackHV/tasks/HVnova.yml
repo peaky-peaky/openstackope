@@ -5,6 +5,7 @@
       - nova-compute
       - nova-compute-kvm
       - qemu-system-data
+      - apache2
 
 
 - name: nova.confのstatusを取得
@@ -20,11 +21,11 @@
 - name: copy files
   copy:
     src: ~/openstackope/roles/openstackHV/tasks/nova.conf 
-    dest: /tmp/copy_here/
+    dest: /etc/nova/
 
 
 - name: compile nova.conf for main
-  replace: dest=/etc/hosts
+  replace: dest=/etc/nova/nova.conf
            regexp="{{item.regexp}}"
            replace="{{item.replace}}"
   with_items:
@@ -34,8 +35,8 @@
   when: inventory_hostname == '10.0.1.1'
 
 
- name: compile nova.conf for backup
-  replace: dest=/etc/hosts
+- name: compile nova.conf for backup
+  replace: dest=/etc/nova/nova.conf
            regexp="{{item.regexp}}"
            replace="{{item.replace}}"
   with_items:

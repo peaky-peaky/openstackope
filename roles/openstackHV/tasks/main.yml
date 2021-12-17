@@ -1,11 +1,29 @@
 ---
-- name: openstackHV config
+- name: hostname config
   block:
   - name: openstackHV set
-    import_tasks: hostname.yml
-    import_tasks: kvm.yml
-    import_tasks: openstack_repository.yml
-    import_tasks: nova.yml
-    import_tasks: horizon.yml
+    import_tasks: HVhostname.yml
 
-horizon.yml  kvm.yml  local_settings.py  main.yml  nova.conf  nova.yml  openstack_repository.yml  policy.json
+
+- name: kvm config
+  block:
+  - name: openstackHV set
+    import_tasks: HVkvm.yml
+
+
+- name: repository config
+  block:
+  - name: repository set
+    import_tasks: HVopenstack_repository.yml
+
+
+- name: nova config
+  block:
+  - name: nova set
+    import_tasks: HVnova.yml
+
+
+- name: horizon config
+  block:
+  - name: horizon set
+    import_tasks: HVhorizon.yml

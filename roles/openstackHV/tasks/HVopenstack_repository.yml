@@ -10,8 +10,14 @@
   register: check_vic_rep
 
 
+- name: send shell script
+  copy:
+    src: ~/openstackope/roles/openstackHV/tasks/repo.sh
+    dest: ~/  
+
+
 - name: Ensure to add repository
-  shell: add-apt-repository cloud-archive:victoria
+  script: /root/openstackope/roles/openstackHV/tasks/repo.sh
   when: "'cloudarchive-victoria.list' not in check_vic_rep.stdout"
 
 
