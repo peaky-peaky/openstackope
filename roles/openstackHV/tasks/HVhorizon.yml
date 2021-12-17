@@ -3,6 +3,7 @@
   apt:
     name:
       - openstack-dashboard
+      - apache2
 
 
 - name: copy local_settings.py
@@ -26,7 +27,3 @@
     path: /etc/nova/policy.json 
     mode: 0640
     group: nova
-
-
-- name: restart nova-api
-  service: name=nova-api state=restarted

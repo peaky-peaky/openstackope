@@ -1,5 +1,5 @@
 ---
-- name: change hostname file
+- name: change hostname1 file
   replace: dest=/etc/hosts
            regexp="{{item.regexp}}"
            replace="{{item.replace}}"
@@ -9,13 +9,13 @@
   when: inventory_hostname == '10.0.1.1'
 
 
-- name: set hostname
+- name: set hostname1
   hostname: 
     name: node1
   when: inventory_hostname == '10.0.1.1'
 
 
-- name: change hostname file
+- name: change hostname2 file
   replace: dest=/etc/hosts
            regexp="{{item.regexp}}"
            replace="{{item.replace}}"
@@ -25,7 +25,7 @@
   when: inventory_hostname == '10.0.2.1'
 
 
-- name: set hostname
+- name: set hostname2
   hostname: 
     name: node2
   when: inventory_hostname == '10.0.2.1'
