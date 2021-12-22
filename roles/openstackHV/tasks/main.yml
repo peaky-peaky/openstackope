@@ -27,3 +27,9 @@
   block:
   - name: horizon set
     import_tasks: HVhorizon.yml
+
+
+- name: neutron config
+  block:
+  - name: neutron set
+    import_tasks: HVneutron.yml
