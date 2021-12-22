@@ -1,0 +1,88 @@
+---
+- name: install neutron component
+  apt:
+    name:
+      - neutron-common
+      - neutron-plugin-ml2
+      - neutron-linuxbridge-agent
+
+
+- name: neutron.confのstatusを取得
+  stat: path=/etc/neutron/neutron.conf
+  register: neutron_conf_stat
+
+
+- name: neutron config backup
+  command: mv /etc/neutron/neutron.conf /etc/neutron/neutron.conf.org
+  when: neutron_conf_stat.stat.exists
+
+
+- name: copy neutron config
+  copy:
+    src: ~/openstackope/roles/openstackHV/tasks/neutron.conf 
+    dest: /etc/neutron/
+
+
+- name: change access auth
+  file:
+    path: /etc/neutron/neutron.conf
+    mode: 0640
+    group: neutron
+
+
+- name: copy ml2 config
+  copy:
+    src: ~/openstackope/roles/openstackHV/tasks/ml2_conf.ini
+    dest: /etc/neutron/plugins/ml2/
+
+
+- name: copy linuxbridgeagent config
+  copy:
+    src: ~/openstackope/roles/openstackHV/tasks/linuxbridge_agent.ini
+    dest: /etc/neutron/plugins/ml2/
+
+
+- name: compile linuxbridgeagent for main
+  replace: dest=/etc/neutron/plugins/ml2/linuxbridge_agent.ini
+           regexp="{{item.regexp}}"
+           replace="{{item.replace}}"
+  with_items:
+    - { regexp: '^local_ip = 7.1.10.1', replace: 'local_ip = 10.0.1.1' }
+  when: inventory_hostname == '10.0.1.1'
+
+
+
+- name: compile linuxbridgeagent for backup
+  replace: dest=/etc/neutron/plugins/ml2/linuxbridge_agent.ini
+           regexp="{{item.regexp}}"
+           replace="{{item.replace}}"
+  with_items:
+    - { regexp: '^local_ip = 7.1.10.1', replace: 'local_ip = 10.0.2.1' }
+  when: inventory_hostname == '10.0.2.1'
+
+
+- name: check symbolic link
+  command: "ls -l /etc/neutron/"
+  register: check_link
+
+
+- name: create sympolic linc
+  command: "ln -s /etc/neutron/plugins/ml2/ml2_conf.ini /etc/neutron/plugin.ini"
+  when: "'lrwxrwxrwx' not in check_link.stdout"
+
+
+- name: restart neutron
+  service: name=neutron-{{ item.name }} state=restarted
+  with_items:
+    - { name: linuxbridge-agent }
+
+
+- name: restart nova-compute
+  service: name=nova-compute state=restarted
+
+
+
+- name: enable neutron
+  service: name=neutron-{{ item.name }} enabled=yes
+  with_items:
+    - { name: linuxbridge-agent }
